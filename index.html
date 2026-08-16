@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бейби Шауэр — Вишлист подарков</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf6ef;
+    --bg-soft: #f3ead9;
+    --card: #ffffff;
+    --ink: #4a4038;
+    --ink-soft: #8a7d6f;
+    --accent: #a8c4a2;
+    --accent-dark: #7fa377;
+    --accent-2: #e8b4a0;
+    --line: #ece2d2;
+    --danger: #c97a6d;
+    --shadow: 0 4px 16px rgba(74, 64, 56, 0.08);
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    text-align: center;
+    padding: 48px 20px 28px;
+    background: linear-gradient(180deg, var(--bg-soft), var(--bg));
+    position: relative;
+  }
+
+  .role-switch {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    display: flex;
+    gap: 3px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+  }
+
+  .role-switch button {
+    appearance: none;
+    border: none;
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--ink-soft);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .role-switch button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  header .cloud-row {
+    font-size: 28px;
+    letter-spacing: 18px;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+
+  .countdown-pill {
+    display: inline-block;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+
+  header h1 {
+    margin: 0 0 10px;
+    font-family: 'Caveat', cursive;
+    font-size: clamp(40px, 7vw, 64px);
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  header p.subtitle {
+    margin: 0 auto;
+    max-width: 560px;
+    color: var(--ink-soft);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 20px 20px 4px;
+  }
+
+  .sort-btn {
+    appearance: none;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .chip-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+  }
+
+  .chip-row::-webkit-scrollbar { display: none; }
+
+  .chip {
+    appearance: none;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .chip.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 16px 20px 80px;
+  }
+
+  #status-banner {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+
+  #status-banner.error { color: var(--danger); }
+
+  #status-banner code {
+    background: var(--bg-soft);
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 22px;
+  }
+
+  .card {
+    position: relative;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(74, 64, 56, 0.16);
+  }
+
+  .card-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--bg-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .no-image-emoji {
+    font-size: 44px;
+    opacity: 0.55;
+  }
+
+  .badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .badge-cat {
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .badge-guest {
+    background: var(--accent-2);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  .ribbon {
+    position: absolute;
+    top: 16px;
+    right: -32px;
+    transform: rotate(40deg);
+    background: var(--accent-dark);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 5px 40px;
+    box-shadow: 0 2px 8px rgba(74, 64, 56, 0.2);
+  }
+
+  .card-body {
+    padding: 18px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .card-body h3 {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.35;
+  }
+
+  .card-body p.desc {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .price {
+    font-weight: 600;
+    color: var(--accent-dark);
+  }
+
+  .link-out {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 13px;
+    border-bottom: 1px dashed var(--ink-soft);
+  }
+
+  .link-out:hover { color: var(--ink); }
+
+  .moderate-select {
+    font-size: 12px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    background: var(--bg);
+  }
+
+  .spacer { flex: 1; }
+
+  .btn {
+    appearance: none;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.1s ease, background 0.15s ease;
+  }
+
+  .btn:active { transform: scale(0.98); }
+
+  .btn-reserve {
+    background: var(--accent);
+    color: #fff;
+    min-height: 44px;
+  }
+
+  .btn-reserve:hover { background: var(--accent-dark); }
+
+  .btn-reserve:disabled {
+    background: var(--line);
+    cursor: not-allowed;
+  }
+
+  .reserved-tag {
+    background: var(--bg-soft);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .reserved-tag strong { color: var(--ink); }
+
+  .delivery-label {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+
+  .btn-cancel {
+    background: transparent;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: underline;
+    padding: 4px;
+    cursor: pointer;
+    align-self: center;
+  }
+
+  .btn-cancel:hover { color: var(--danger); }
+
+  .add-idea-card {
+    appearance: none;
+    background: var(--card);
+    border: 2px dashed var(--line);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 40px 20px;
+    cursor: pointer;
+    color: var(--ink-soft);
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 220px;
+  }
+
+  .add-idea-card:hover {
+    border-color: var(--accent);
+    color: var(--accent-dark);
+  }
+
+  .add-idea-plus {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  /* Modal */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(74, 64, 56, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+
+  .overlay[hidden] { display: none; }
+
+  .modal {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 12px 40px rgba(74, 64, 56, 0.25);
+    animation: popIn 0.2s ease;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.95) translateY(10px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .modal h2 {
+    margin: 0 0 6px;
+    font-size: 19px;
+  }
+
+  .modal p.modal-hint {
+    margin: 0 0 18px;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  .modal label {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .modal input[type="text"],
+  .modal input[type="password"],
+  .modal select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 15px;
+    margin-bottom: 6px;
+    background: #fff;
+    font-family: inherit;
+  }
+
+  .modal input:focus,
+  .modal select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .modal .field-error {
+    color: var(--danger);
+    font-size: 13px;
+    min-height: 18px;
+    margin-bottom: 6px;
+  }
+
+  .segment {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .segment button {
+    appearance: none;
+    flex: 1;
+    border-radius: 10px;
+    padding: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #fff;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+  }
+
+  .segment button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .modal-actions .btn-secondary {
+    background: var(--bg-soft);
+    color: var(--ink);
+    flex: 1;
+    min-height: 44px;
+  }
+
+  .modal-actions .btn-reserve { flex: 1; }
+
+  .particles-wrap {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  .particle {
+    position: absolute;
+    bottom: 40px;
+    font-size: 20px;
+    animation: floatUp 0.9s ease forwards;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-70px) scale(1.3); opacity: 0; }
+  }
+
+  .toast {
+    background: var(--ink);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(-6px);
+  }
+
+  .toast.error { background: var(--danger); }
+
+  footer {
+    text-align: center;
+    padding: 30px 20px 50px;
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="role-switch" id="role-switch">
+    <button type="button" id="role-guest-btn" class="active">Гостю</button>
+    <button type="button" id="role-host-btn">Маме</button>
+  </div>
+  <div class="cloud-row">🎀 👶 🎀</div>
+  <div class="countdown-pill" id="countdown-pill" hidden></div>
+  <h1>Бейби Шауэр Дарьи</h1>
+  <p class="subtitle">Мы будем рады видеть вас на празднике! Ниже — список подарков, которые пригодятся малышу.
+    Выберите то, что откликается, и нажмите «Забронировать» — подарок можно вручить лично или отправить доставкой в пункт выдачи.</p>
+</header>
+
+<div class="filter-bar">
+  <button type="button" class="sort-btn" id="sort-btn">⇅ По цене</button>
+  <div class="chip-row" id="chip-row"></div>
+</div>
+
+<main>
+  <div id="status-banner"></div>
+  <div id="grid" class="grid" hidden></div>
+</main>
+
+<footer>Сделано с любовью для нашего малыша 💛</footer>
+
+<!-- Вход для мамы -->
+<div class="overlay" id="overlay-auth" hidden>
+  <div class="modal">
+    <h2>Вход для мамы</h2>
+    <p class="modal-hint">Введите код, чтобы увидеть, кто что забронировал</p>
+    <form id="auth-form">
+      <label for="auth-code">Код доступа</label>
+      <input type="password" id="auth-code" placeholder="••••" autocomplete="off">
+      <div class="field-error" id="auth-error"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close-modal>Отмена</button>
+        <button type="submit" class="btn btn-reserve" id="auth-submit">Войти</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Бронирование -->
+<div class="overlay" id="overlay-reserve" hidden>
+  <div class="modal">
+    <h2>Забронировать подарок</h2>
+    <p class="modal-hint" id="reserve-gift-name"></p>
+    <form id="reserve-form">
+      <label for="guest-name">Ваше имя</label>
+      <input type="text" id="guest-name" placeholder="Например, Анна" autocomplete="name">
+      <div class="field-error" id="reserve-name-error"></div>
+      <label>Как передадите подарок?</label>
+      <div class="segment" id="delivery-segment">
+        <button type="button" class="active" data-delivery="personal">Лично</button>
+        <button type="button" data-delivery="pickup">Доставка в ПВЗ</button>
+      </div>
+      <div id="pickup-address-wrap" hidden>
+        <label for="pickup-address">Адрес ПВЗ, куда отправите</label>
+        <input type="text" id="pickup-address" placeholder="Например, СДЭК на ул. Ленина, 10">
+      </div>
+      <div class="field-error" id="reserve-error"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close-modal>Отмена</button>
+        <button type="submit" class="btn btn-reserve" id="reserve-submit">Забронировать</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Добавление идеи -->
+<div class="overlay" id="overlay-idea" hidden>
+  <div class="modal">
+    <h2>Добавить идею подарка</h2>
+    <p class="modal-hint">Идея сразу появится в общем списке.</p>
+    <form id="idea-form">
+      <label for="idea-name">Название подарка</label>
+      <input type="text" id="idea-name" placeholder="Например, радионяня с камерой">
+      <label for="idea-cat">Категория</label>
+      <select id="idea-cat"></select>
+      <label for="idea-price">Цена, ₽ (необязательно)</label>
+      <input type="text" id="idea-price" placeholder="Например, 5000">
+      <div class="field-error" id="idea-error"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close-modal>Отмена</button>
+        <button type="submit" class="btn btn-reserve" id="idea-submit">Добавить</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="particles-wrap" id="particles-wrap">
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ЗАМЕНИТЕ на URL вашего развёрнутого Apps Script Web App (см. README.md)
+  var APPS_SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+  // Дата события в формате 'YYYY-MM-DD', например '2026-10-10'.
+  // Если оставить пустой строкой — плашка обратного отсчёта не показывается.
+  var EVENT_DATE = '';
+
+  var CATEGORIES = [
+    { id: 'all', label: 'Все', emoji: '' },
+    { id: 'strollers', label: 'Коляски и автокресла', emoji: '🚗' },
+    { id: 'clothes', label: 'Одежда', emoji: '👕' },
+    { id: 'care', label: 'Уход и гигиена', emoji: '🧴' },
+    { id: 'feeding', label: 'Кормление', emoji: '🍼' },
+    { id: 'toys', label: 'Игрушки и развитие', emoji: '🧸' },
+    { id: 'other', label: 'Прочее', emoji: '📦' }
+  ];
+  var CATEGORY_MAP = {};
+  CATEGORIES.forEach(function (c) { CATEGORY_MAP[c.id] = c; });
+
+  var MONTHS_GENITIVE = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+  // ---- state ----
+  var gifts = [];
+  var filter = 'all';
+  var sortOrder = null; // null | 'asc' | 'desc'
+  var role = 'guest'; // 'guest' | 'host'
+  var hostCode = '';
+  var myReservations = loadMyReservations();
+  var activeModal = null; // 'auth' | 'reserve' | 'idea'
+  var reserveGiftId = null;
+  var deliveryMethod = 'personal';
+
+  // ---- dom refs ----
+  var statusBanner = document.getElementById('status-banner');
+  var grid = document.getElementById('grid');
+  var chipRow = document.getElementById('chip-row');
+  var sortBtn = document.getElementById('sort-btn');
+  var countdownPill = document.getElementById('countdown-pill');
+  var roleGuestBtn = document.getElementById('role-guest-btn');
+  var roleHostBtn = document.getElementById('role-host-btn');
+  var toast = document.getElementById('toast');
+  var particlesWrap = document.getElementById('particles-wrap');
+
+  var overlayAuth = document.getElementById('overlay-auth');
+  var authForm = document.getElementById('auth-form');
+  var authCodeInput = document.getElementById('auth-code');
+  var authError = document.getElementById('auth-error');
+  var authSubmit = document.getElementById('auth-submit');
+
+  var overlayReserve = document.getElementById('overlay-reserve');
+  var reserveForm = document.getElementById('reserve-form');
+  var reserveGiftNameEl = document.getElementById('reserve-gift-name');
+  var guestNameInput = document.getElementById('guest-name');
+  var reserveNameError = document.getElementById('reserve-name-error');
+  var reserveError = document.getElementById('reserve-error');
+  var reserveSubmit = document.getElementById('reserve-submit');
+  var deliverySegment = document.getElementById('delivery-segment');
+  var pickupAddressWrap = document.getElementById('pickup-address-wrap');
+  var pickupAddressInput = document.getElementById('pickup-address');
+
+  var overlayIdea = document.getElementById('overlay-idea');
+  var ideaForm = document.getElementById('idea-form');
+  var ideaNameInput = document.getElementById('idea-name');
+  var ideaCatSelect = document.getElementById('idea-cat');
+  var ideaPriceInput = document.getElementById('idea-price');
+  var ideaError = document.getElementById('idea-error');
+  var ideaSubmit = document.getElementById('idea-submit');
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  function pluralDays(n) {
+    var n10 = n % 10, n100 = n % 100;
+    if (n10 === 1 && n100 !== 11) return 'день';
+    if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) return 'дня';
+    return 'дней';
+  }
+
+  function loadMyReservations() {
+    try {
+      var raw = localStorage.getItem('wishlist_my_reservations');
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveMyReservations() {
+    try {
+      localStorage.setItem('wishlist_my_reservations', JSON.stringify(myReservations));
+    } catch (e) { /* ignore */ }
+  }
+
+  function markMine(id) {
+    if (myReservations.indexOf(id) === -1) {
+      myReservations.push(id);
+      saveMyReservations();
+    }
+  }
+
+  function unmarkMine(id) {
+    var i = myReservations.indexOf(id);
+    if (i !== -1) {
+      myReservations.splice(i, 1);
+      saveMyReservations();
+    }
+  }
+
+  // ---- countdown ----
+  function renderCountdown() {
+    if (!EVENT_DATE) {
+      countdownPill.hidden = true;
+      return;
+    }
+    var parts = EVENT_DATE.split('-');
+    var eventDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var diffDays = Math.ceil((eventDate - today) / 86400000);
+    var dateLabel = eventDate.getDate() + ' ' + MONTHS_GENITIVE[eventDate.getMonth()];
+
+    countdownPill.hidden = false;
+    if (diffDays > 0) {
+      countdownPill.textContent = 'До события осталось ' + diffDays + ' ' + pluralDays(diffDays) + ' · ' + dateLabel;
+    } else if (diffDays === 0) {
+      countdownPill.textContent = 'Событие сегодня! · ' + dateLabel;
+    } else {
+      countdownPill.textContent = dateLabel;
+    }
+  }
+
+  // ---- role ----
+  function setRole(newRole) {
+    role = newRole;
+    roleGuestBtn.classList.toggle('active', role === 'guest');
+    roleHostBtn.classList.toggle('active', role === 'host');
+    renderGrid();
+  }
+
+  roleGuestBtn.addEventListener('click', function () { setRole('guest'); });
+  roleHostBtn.addEventListener('click', function () {
+    if (role === 'host') return;
+    authCodeInput.value = '';
+    authError.textContent = '';
+    openModal('auth');
+  });
+
+  // ---- filter chips ----
+  function renderChips() {
+    chipRow.innerHTML = CATEGORIES.map(function (c) {
+      var active = c.id === filter;
+      return '<button type="button" class="chip' + (active ? ' active' : '') + '" data-cat="' + c.id + '">' +
+        (c.emoji ? '<span>' + c.emoji + '</span>' : '') + escapeHtml(c.label) + '</button>';
+    }).join('');
+
+    chipRow.querySelectorAll('[data-cat]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        filter = btn.getAttribute('data-cat');
+        renderChips();
+        renderGrid();
+      });
+    });
+  }
+
+  sortBtn.addEventListener('click', function () {
+    sortOrder = sortOrder === null ? 'desc' : sortOrder === 'desc' ? 'asc' : null;
+    sortBtn.textContent = sortOrder === 'desc' ? '↓ Сначала дорогие' : sortOrder === 'asc' ? '↑ Сначала недорогие' : '⇅ По цене';
+    renderGrid();
+  });
+
+  // ---- toast & particles ----
+  var toastTimer = null;
+  function showToast(message, isError) {
+    toast.textContent = message;
+    toast.className = 'toast show' + (isError ? ' error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.className = 'toast'; }, 2800);
+  }
+
+  function spawnParticles() {
+    var emojis = ['💛', '⭐', '🌿'];
+    for (var i = 0; i < 6; i++) {
+      var span = document.createElement('span');
+      span.className = 'particle';
+      span.textContent = emojis[i % emojis.length];
+      span.style.left = (30 + Math.random() * 40) + '%';
+      particlesWrap.appendChild(span);
+      (function (el) { setTimeout(function () { el.remove(); }, 950); })(span);
+    }
+  }
+
+  // ---- status / grid rendering ----
+  function setStatus(message, isError) {
+    statusBanner.textContent = message;
+    statusBanner.className = isError ? 'error' : '';
+    statusBanner.hidden = !message;
+    grid.hidden = !!message;
+  }
+
+  function renderGrid() {
+    var filtered = gifts.filter(function (g) { return filter === 'all' || g.category === filter; });
+
+    if (sortOrder) {
+      filtered = filtered.slice().sort(function (a, b) {
+        if (a.priceValue == null) return 1;
+        if (b.priceValue == null) return -1;
+        return sortOrder === 'desc' ? b.priceValue - a.priceValue : a.priceValue - b.priceValue;
+      });
+    }
+
+    grid.innerHTML = filtered.map(renderCard).join('') + renderAddIdeaCard();
+
+    grid.querySelectorAll('[data-reserve]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openReserveModal(btn.getAttribute('data-reserve')); });
+    });
+    grid.querySelectorAll('[data-cancel]').forEach(function (btn) {
+      btn.addEventListener('click', function () { cancelReservation(btn.getAttribute('data-cancel')); });
+    });
+    grid.querySelectorAll('[data-moderate]').forEach(function (select) {
+      select.addEventListener('change', function () {
+        reassignCategory(select.getAttribute('data-moderate'), select.value);
+      });
+    });
+    grid.querySelectorAll('[data-fallback]').forEach(function (img) {
+      img.addEventListener('error', function () {
+        var emoji = img.getAttribute('data-fallback');
+        img.parentElement.querySelector('.badges').insertAdjacentHTML('beforebegin',
+          '<span class="no-image-emoji">' + emoji + '</span>');
+        img.remove();
+      }, { once: true });
+    });
+    var addIdeaBtn = document.getElementById('add-idea-btn');
+    if (addIdeaBtn) addIdeaBtn.addEventListener('click', openIdeaModal);
+  }
+
+  function renderCard(gift) {
+    var cat = CATEGORY_MAP[gift.category] || CATEGORY_MAP.other;
+    var isReserved = !!gift.reservedBy;
+    var isHost = role === 'host';
+    var mine = myReservations.indexOf(gift.id) !== -1;
+
+    var badgeText = '', reservedLabel = '';
+    if (isReserved) {
+      if (isHost) {
+        badgeText = gift.reservedBy;
+        reservedLabel = 'Забронировано: <strong>' + escapeHtml(gift.reservedBy) + '</strong>';
+      } else if (mine) {
+        badgeText = 'Ваша бронь ✓';
+        reservedLabel = 'Забронировано вами ✓';
+      } else {
+        badgeText = 'Занято';
+        reservedLabel = 'Уже забронировано';
+      }
+    }
+
+    var imageBlock = gift.image
+      ? '<img src="' + escapeHtml(gift.image) + '" alt="" loading="lazy" data-fallback="' + cat.emoji + '">'
+      : '<span class="no-image-emoji">' + cat.emoji + '</span>';
+
+    var badgesBlock = '<div class="badges">' +
+      '<span class="badge-cat">' + (cat.emoji ? cat.emoji + ' ' : '') + escapeHtml(cat.label) + '</span>' +
+      (gift.isGuestIdea ? '<span class="badge-guest">Идея гостя</span>' : '') +
+      '</div>';
+
+    var ribbonBlock = isReserved ? '<div class="ribbon">' + escapeHtml(badgeText) + '</div>' : '';
+
+    var linkBlock = gift.link
+      ? '<a class="link-out" href="' + escapeHtml(gift.link) + '" target="_blank" rel="noopener">Посмотреть товар ↗</a>'
+      : '<span></span>';
+
+    var priceBlock = gift.priceText ? '<span class="price">' + escapeHtml(gift.priceText) + '</span>' : '<span></span>';
+
+    var moderateBlock = (gift.isGuestIdea && isHost)
+      ? '<select class="moderate-select" data-moderate="' + escapeHtml(gift.id) + '">' +
+        CATEGORIES.filter(function (c) { return c.id !== 'all'; }).map(function (c) {
+          return '<option value="' + c.id + '"' + (c.id === gift.category ? ' selected' : '') + '>' + escapeHtml(c.label) + '</option>';
+        }).join('') + '</select>'
+      : '';
+
+    var canCancel = isReserved && (isHost || mine);
+    var deliveryLabel = (isReserved && isHost && gift.delivery)
+      ? '<div class="delivery-label">' + (gift.delivery.method === 'pickup'
+          ? 'Доставка в ПВЗ: ' + escapeHtml(gift.delivery.address || 'адрес уточняется')
+          : 'Передаст лично') + '</div>'
+      : '';
+
+    var actionBlock = isReserved
+      ? '<div class="reserved-tag">' + reservedLabel + deliveryLabel + '</div>' +
+        (canCancel ? '<button type="button" class="btn-cancel" data-cancel="' + escapeHtml(gift.id) + '">Отменить бронь</button>' : '')
+      : '<button type="button" class="btn btn-reserve" data-reserve="' + escapeHtml(gift.id) + '">Забронировать</button>';
+
+    return (
+      '<div class="card">' +
+        '<div class="card-image">' + imageBlock + badgesBlock + ribbonBlock + '</div>' +
+        '<div class="card-body">' +
+          '<h3>' + escapeHtml(gift.name) + '</h3>' +
+          (gift.description ? '<p class="desc">' + escapeHtml(gift.description) + '</p>' : '') +
+          '<div class="card-meta">' + priceBlock + linkBlock + '</div>' +
+          moderateBlock +
+          '<div class="spacer"></div>' +
+          actionBlock +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderAddIdeaCard() {
+    return '<button type="button" class="add-idea-card" id="add-idea-btn">' +
+      '<span class="add-idea-plus">+</span>Добавить свою идею</button>';
+  }
+
+  // ---- modal plumbing ----
+  function openModal(name) {
+    activeModal = name;
+    overlayAuth.hidden = name !== 'auth';
+    overlayReserve.hidden = name !== 'reserve';
+    overlayIdea.hidden = name !== 'idea';
+    var focusEl = name === 'auth' ? authCodeInput : name === 'reserve' ? guestNameInput : ideaNameInput;
+    setTimeout(function () { focusEl.focus(); }, 50);
+  }
+
+  function closeModal() {
+    activeModal = null;
+    overlayAuth.hidden = true;
+    overlayReserve.hidden = true;
+    overlayIdea.hidden = true;
+  }
+
+  document.querySelectorAll('[data-close-modal]').forEach(function (btn) {
+    btn.addEventListener('click', closeModal);
+  });
+  [overlayAuth, overlayReserve, overlayIdea].forEach(function (ov) {
+    ov.addEventListener('click', function (e) { if (e.target === ov) closeModal(); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && activeModal) closeModal();
+  });
+
+  // ---- auth ----
+  authForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var code = authCodeInput.value.trim();
+    authSubmit.disabled = true;
+    callApi({ action: 'authHost', code: code })
+      .then(function (data) {
+        if (!data.ok) {
+          authError.textContent = data.error || 'Неверный код';
+          return;
+        }
+        hostCode = code;
+        closeModal();
+        setRole('host');
+      })
+      .catch(function () { authError.textContent = 'Ошибка соединения. Попробуйте ещё раз.'; })
+      .finally(function () { authSubmit.disabled = false; });
+  });
+
+  // ---- reserve ----
+  function openReserveModal(giftId) {
+    reserveGiftId = giftId;
+    var gift = gifts.find(function (g) { return g.id === giftId; });
+    reserveGiftNameEl.textContent = gift ? gift.name : '';
+    guestNameInput.value = '';
+    reserveNameError.textContent = '';
+    reserveError.textContent = '';
+    setDelivery('personal');
+    pickupAddressInput.value = '';
+    openModal('reserve');
+  }
+
+  function setDelivery(method) {
+    deliveryMethod = method;
+    deliverySegment.querySelectorAll('button').forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-delivery') === method);
+    });
+    pickupAddressWrap.hidden = method !== 'pickup';
+  }
+
+  deliverySegment.querySelectorAll('button').forEach(function (btn) {
+    btn.addEventListener('click', function () { setDelivery(btn.getAttribute('data-delivery')); });
+  });
+
+  reserveForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = guestNameInput.value.trim();
+    if (!name) {
+      reserveNameError.textContent = 'Пожалуйста, укажите имя';
+      return;
+    }
+    reserveNameError.textContent = '';
+    reserveError.textContent = '';
+    reserveSubmit.disabled = true;
+    reserveSubmit.textContent = 'Бронируем…';
+
+    callApi({
+      action: 'reserve',
+      id: reserveGiftId,
+      guestName: name,
+      method: deliveryMethod,
+      address: pickupAddressInput.value.trim()
+    }).then(function (data) {
+      if (!data.ok) {
+        reserveError.textContent = data.error || 'Не удалось забронировать';
+        if (data.gifts) { gifts = data.gifts; renderGrid(); }
+        return;
+      }
+      gifts = data.gifts;
+      markMine(reserveGiftId);
+      closeModal();
+      renderGrid();
+      showToast('Подарок забронирован — спасибо! 💛');
+      spawnParticles();
+    }).catch(function () {
+      reserveError.textContent = 'Ошибка соединения. Попробуйте ещё раз.';
+    }).finally(function () {
+      reserveSubmit.disabled = false;
+      reserveSubmit.textContent = 'Забронировать';
+    });
+  });
+
+  function cancelReservation(giftId) {
+    var gift = gifts.find(function (g) { return g.id === giftId; });
+    var confirmed = window.confirm('Отменить бронь подарка' + (gift ? ' «' + gift.name + '»' : '') + '?');
+    if (!confirmed) return;
+
+    callApi({ action: 'cancel', id: giftId })
+      .then(function (data) {
+        if (!data.ok) {
+          showToast(data.error || 'Не удалось отменить бронь', true);
+          return;
+        }
+        gifts = data.gifts;
+        unmarkMine(giftId);
+        renderGrid();
+        showToast('Бронь отменена');
+      })
+      .catch(function () { showToast('Ошибка соединения. Попробуйте ещё раз.', true); });
+  }
+
+  // ---- guest idea ----
+  function openIdeaModal() {
+    ideaNameInput.value = '';
+    ideaCatSelect.value = 'other';
+    ideaPriceInput.value = '';
+    ideaError.textContent = '';
+    openModal('idea');
+  }
+
+  ideaCatSelect.innerHTML = CATEGORIES.filter(function (c) { return c.id !== 'all'; }).map(function (c) {
+    return '<option value="' + c.id + '">' + escapeHtml(c.label) + '</option>';
+  }).join('');
+
+  ideaForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = ideaNameInput.value.trim();
+    if (!name) {
+      ideaError.textContent = 'Пожалуйста, укажите название подарка';
+      return;
+    }
+    ideaError.textContent = '';
+    ideaSubmit.disabled = true;
+    ideaSubmit.textContent = 'Добавляем…';
+
+    callApi({
+      action: 'addIdea',
+      name: name,
+      category: ideaCatSelect.value,
+      price: ideaPriceInput.value.trim()
+    }).then(function (data) {
+      if (!data.ok) {
+        ideaError.textContent = data.error || 'Не удалось добавить идею';
+        return;
+      }
+      gifts = data.gifts;
+      closeModal();
+      renderGrid();
+      showToast('Спасибо! Идея добавлена в список 🌿');
+    }).catch(function () {
+      ideaError.textContent = 'Ошибка соединения. Попробуйте ещё раз.';
+    }).finally(function () {
+      ideaSubmit.disabled = false;
+      ideaSubmit.textContent = 'Добавить';
+    });
+  });
+
+  // ---- moderation (host only) ----
+  function reassignCategory(giftId, category) {
+    callApi({ action: 'reassignCategory', id: giftId, category: category, code: hostCode })
+      .then(function (data) {
+        if (!data.ok) {
+          showToast(data.error || 'Не удалось изменить категорию', true);
+          return;
+        }
+        gifts = data.gifts;
+        renderGrid();
+      })
+      .catch(function () { showToast('Ошибка соединения. Попробуйте ещё раз.', true); });
+  }
+
+  // ---- api / bootstrap ----
+  function callApi(payload) {
+    return fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(function (res) { return res.json(); });
+  }
+
+  function loadGifts() {
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
+      setStatus('Страница ещё не настроена: вставьте APPS_SCRIPT_URL в index.html (см. README.md).', true);
+      return;
+    }
+    setStatus('Загружаем список подарков…');
+    fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data.ok) throw new Error(data.error || 'Ошибка загрузки');
+        gifts = data.gifts || [];
+        setStatus('');
+        renderGrid();
+      })
+      .catch(function () {
+        setStatus('Не удалось загрузить список подарков. Проверьте подключение и попробуйте обновить страницу.', true);
+      });
+  }
+
+  renderCountdown();
+  renderChips();
+  loadGifts();
+})();
+</script>
+
+</body>
+</html>
