@@ -438,6 +438,10 @@
     animation: popIn 0.2s ease;
   }
 
+  #overlay-auth .modal { max-width: 340px; }
+  #overlay-reserve .modal { max-width: 380px; }
+  #overlay-idea .modal { max-width: 400px; }
+
   @keyframes popIn {
     0% { transform: scale(0.95) translateY(10px); opacity: 0; }
     100% { transform: scale(1) translateY(0); opacity: 1; }
@@ -478,6 +482,11 @@
   .modal select:focus {
     outline: none;
     border-color: var(--accent);
+  }
+
+  #overlay-idea .modal input[type="text"],
+  #overlay-idea .modal select {
+    margin-bottom: 12px;
   }
 
   .modal .field-error {
