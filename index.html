@@ -814,9 +814,9 @@
 
     countdownPill.hidden = false;
     if (diffDays > 0) {
-      countdownPill.textContent = 'До события осталось ' + diffDays + ' ' + pluralDays(diffDays) + ' · ' + dateLabel;
+      countdownPill.textContent = 'До рождения осталось ' + diffDays + ' ' + pluralDays(diffDays) + ' · ' + dateLabel;
     } else if (diffDays === 0) {
-      countdownPill.textContent = 'Событие сегодня! · ' + dateLabel;
+      countdownPill.textContent = 'Сегодня! · ' + dateLabel;
     } else {
       countdownPill.textContent = dateLabel;
     }
