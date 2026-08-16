@@ -761,9 +761,16 @@
   function loadMyReservations() {
     try {
       var raw = localStorage.getItem('wishlist_my_reservations');
-      return raw ? JSON.parse(raw) : [];
+      var parsed = raw ? JSON.parse(raw) : {};
+      // Миграция со старого формата (массив id без токенов).
+      if (Array.isArray(parsed)) {
+        var migrated = {};
+        parsed.forEach(function (id) { migrated[id] = ''; });
+        return migrated;
+      }
+      return parsed && typeof parsed === 'object' ? parsed : {};
     } catch (e) {
-      return [];
+      return {};
     }
   }
 
@@ -773,19 +780,14 @@
     } catch (e) { /* ignore */ }
   }
 
-  function markMine(id) {
-    if (myReservations.indexOf(id) === -1) {
-      myReservations.push(id);
-      saveMyReservations();
-    }
+  function markMine(id, token) {
+    myReservations[id] = token || '';
+    saveMyReservations();
   }
 
   function unmarkMine(id) {
-    var i = myReservations.indexOf(id);
-    if (i !== -1) {
-      myReservations.splice(i, 1);
-      saveMyReservations();
-    }
+    delete myReservations[id];
+    saveMyReservations();
   }
 
   // ---- countdown ----
@@ -917,9 +919,9 @@
 
   function renderCard(gift) {
     var cat = CATEGORY_MAP[gift.category] || CATEGORY_MAP.other;
-    var isReserved = !!gift.reservedBy;
+    var isReserved = !!gift.reserved;
     var isHost = role === 'host';
-    var mine = myReservations.indexOf(gift.id) !== -1;
+    var mine = Object.prototype.hasOwnProperty.call(myReservations, gift.id);
 
     var badgeText = '', reservedLabel = '';
     if (isReserved) {
@@ -1030,6 +1032,7 @@
           return;
         }
         hostCode = code;
+        if (data.gifts) gifts = data.gifts;
         closeModal();
         setRole('host');
       })
@@ -1079,7 +1082,8 @@
       id: reserveGiftId,
       guestName: name,
       method: deliveryMethod,
-      address: pickupAddressInput.value.trim()
+      address: pickupAddressInput.value.trim(),
+      code: role === 'host' ? hostCode : ''
     }).then(function (data) {
       if (!data.ok) {
         reserveError.textContent = data.error || 'Не удалось забронировать';
@@ -1087,7 +1091,7 @@
         return;
       }
       gifts = data.gifts;
-      markMine(reserveGiftId);
+      markMine(reserveGiftId, data.token);
       closeModal();
       renderGrid();
       showToast('Подарок забронирован — спасибо! 💛');
@@ -1105,7 +1109,12 @@
     var confirmed = window.confirm('Отменить бронь подарка' + (gift ? ' «' + gift.name + '»' : '') + '?');
     if (!confirmed) return;
 
-    callApi({ action: 'cancel', id: giftId })
+    callApi({
+      action: 'cancel',
+      id: giftId,
+      token: myReservations[giftId] || '',
+      code: role === 'host' ? hostCode : ''
+    })
       .then(function (data) {
         if (!data.ok) {
           showToast(data.error || 'Не удалось отменить бронь', true);
@@ -1147,7 +1156,8 @@
       action: 'addIdea',
       name: name,
       category: ideaCatSelect.value,
-      price: ideaPriceInput.value.trim()
+      price: ideaPriceInput.value.trim(),
+      code: role === 'host' ? hostCode : ''
     }).then(function (data) {
       if (!data.ok) {
         ideaError.textContent = data.error || 'Не удалось добавить идею';
