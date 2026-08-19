@@ -794,6 +794,22 @@
     } catch (e) { /* ignore */ }
   }
 
+  function loadCachedGifts() {
+    try {
+      var raw = localStorage.getItem('wishlist_gifts_cache');
+      var parsed = raw ? JSON.parse(raw) : null;
+      return Array.isArray(parsed) ? parsed : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveCachedGifts(list) {
+    try {
+      localStorage.setItem('wishlist_gifts_cache', JSON.stringify(list));
+    } catch (e) { /* ignore */ }
+  }
+
   function markMine(id, token) {
     myReservations[id] = token || '';
     saveMyReservations();
@@ -1217,17 +1233,31 @@
       setStatus('Страница ещё не настроена: вставьте APPS_SCRIPT_URL в index.html (см. README.md).', true);
       return;
     }
-    setStatus('Загружаем список подарков…');
+
+    // Показываем прошлый снимок сразу, пока в фоне грузится свежий —
+    // так гость видит подарки мгновенно вместо пустого экрана загрузки.
+    var cached = loadCachedGifts();
+    if (cached && cached.length) {
+      gifts = cached;
+      setStatus('');
+      renderGrid();
+    } else {
+      setStatus('Загружаем список подарков…');
+    }
+
     fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), { cache: 'no-store' })
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (!data.ok) throw new Error(data.error || 'Ошибка загрузки');
         gifts = data.gifts || [];
+        saveCachedGifts(gifts);
         setStatus('');
         renderGrid();
       })
       .catch(function () {
-        setStatus('Не удалось загрузить список подарков. Проверьте подключение и попробуйте обновить страницу.', true);
+        if (!cached || !cached.length) {
+          setStatus('Не удалось загрузить список подарков. Проверьте подключение и попробуйте обновить страницу.', true);
+        }
       });
   }
 
